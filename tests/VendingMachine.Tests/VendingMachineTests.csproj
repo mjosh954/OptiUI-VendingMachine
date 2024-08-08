@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -18,8 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OptiUI-VendingMachine\VendingMachineOOO.csproj" />
+    <ProjectReference Include="..\..\src\VendingMachineOOO.csproj" />
   </ItemGroup>
+	
+
 
   <ItemGroup>
     <Using Include="Xunit" />
