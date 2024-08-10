@@ -6,7 +6,8 @@ public class VendingMachine : IVendingMachine
     private Bank _bank;
     private List<Money> _moneyInserted = [];
     private Ledger _ledger = new();
-    private readonly PriceCalculator _priceCalculator;
+    private readonly IPriceCalculator _priceCalculator;
+    private readonly ICoffeeFactory _coffeeFactory;
     public decimal TotalInsertedMoneyValue => _moneyInserted.Sum(m => m.Value);
 
     public List<ReadOnlyCoffeeOrder> CurrentOrders => _currentTransaction.CoffeeOrders
@@ -24,14 +25,15 @@ public class VendingMachine : IVendingMachine
     public decimal TotalCost => _priceCalculator.CalculateTotal(CurrentOrders.AsReadOnly());
 
 
-    public VendingMachine(Bank bank, PriceCalculator priceCalculator)
+    public VendingMachine(Bank bank, IPriceCalculator priceCalculator, ICoffeeFactory coffeeFactory)
     {
 
         _bank = bank;
         _priceCalculator = priceCalculator;
+        _coffeeFactory = coffeeFactory;
     }
 
-    public VendingMachine() : this(new Bank(Bank.CreateDefaultTill()), new PriceCalculator(new Prices()))
+    public VendingMachine() : this(new Bank(Bank.CreateDefaultTill()), new PriceCalculator(new Prices()), new CoffeeFactory())
     {
     }
 
@@ -41,14 +43,22 @@ public class VendingMachine : IVendingMachine
         return []; // return any money inserted
     }
 
-    public (Coffee[], Money[]) CompleteOrder()
+    public (List<Coffee>, List<Money>) CompleteOrder()
     {
+        _currentTransaction.Complete();
+        var coffeeOrders = _currentTransaction.CoffeeOrders.Select(s => s.AsReadOnly()).ToList();
+        List<Coffee> coffees = coffeeOrders.Select(_coffeeFactory.BuildCoffee).ToList();
 
-        throw new NotImplementedException(); // return coffee and any change
+        var totalCost = TotalCost;
+
+        var totalInsertedCash = TotalInsertedMoneyValue;
+        var change = totalInsertedCash - totalCost;
+
+        _ledger.AddTransaction(_currentTransaction);
+        _currentTransaction = Transaction.EmptyTransaction;
+
+        return (coffees, _bank.GetMoney(change));
     }
-
-
-
 
     public void InsertMoney(Money money)
     {
@@ -77,6 +87,7 @@ public class VendingMachine : IVendingMachine
         }
 
         var coffee = new CoffeeOrder();
+        coffee.Size = size;
         coffee.CreamCount = creamCount;
         coffee.SugarCount = sugarCount;
         _currentTransaction.Add(coffee);

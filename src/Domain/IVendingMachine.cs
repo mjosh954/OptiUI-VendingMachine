@@ -16,6 +16,6 @@
 
         List<Money> Cancel();
 
-        (Coffee[], Money[]) CompleteOrder();
+        (List<Coffee>, List<Money>) CompleteOrder();
     }
 }

@@ -19,13 +19,13 @@ public class VendingMachineTests
     public void Can_Create_Order_With_Two_Coffees_ShowTotal()
     {
         IVendingMachine machine = new VendingMachine();
-        // 2.00 + 0.50 + 0.50 + 0.25 = 3.25
+        // 2.00 + 0.50 + 0.50 = 3.00
         machine.SelectCoffee(CoffeeSize.Medium,
             creamCount: 2,
-            sugarCount: 1);
+            sugarCount: 0);
 
-        // 1.75
-        machine.SelectCoffee(CoffeeSize.Small);
+        // 1.75 + 0.25 = 2
+        machine.SelectCoffee(CoffeeSize.Small, creamCount: 0, sugarCount: 1);
 
         decimal total = machine.TotalCost;
 
@@ -56,7 +56,7 @@ public class VendingMachineTests
 
         var remainingBalance = machine.RemainingBalance;
 
-        remainingBalance.Should().Be(1.75m);
+        remainingBalance.Should().Be(2.00m);
     }
 
     [Fact]
@@ -92,5 +92,20 @@ public class VendingMachineTests
 
         currentOrders.Should().HaveCount(1);
         currentOrders.Should().BeOfType<List<ReadOnlyCoffeeOrder>>();
+    }
+
+    [Fact]
+    public void CompleteOrder_Returns_CoffeeAndChange_When_MoneyGreaterThanTotal()
+    {
+
+        IVendingMachine vendingMachine = new VendingMachine();
+        vendingMachine.SelectCoffee(CoffeeSize.Medium, 1, 2);
+        vendingMachine.InsertMoney(new Twenty());
+
+        var (coffee, change) = vendingMachine.CompleteOrder();
+
+        coffee.Should().NotBeEmpty().And.ContainSingle();
+        change.Should().NotBeEmpty();
+
     }
 }

@@ -23,6 +23,10 @@ public class Bank
 
     public List<Money> GetMoney(decimal amount)
     {
+        if (amount < 0) throw new ArgumentOutOfRangeException("Can not get negative money from bank");
+
+        if (amount == 0) return Enumerable.Empty<Money>().ToList();
+
         if (amount > Total)
         {
             throw new InsufficientFundsException();
