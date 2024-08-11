@@ -1,5 +1,4 @@
-﻿
-namespace VendingMachineOOO.Domain
+﻿namespace VendingMachineOOO.Exceptions
 {
     [Serializable]
     internal class TransactionCompleteException : Exception

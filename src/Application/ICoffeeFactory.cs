@@ -1,4 +1,6 @@
-﻿namespace VendingMachineOOO.Domain;
+﻿using VendingMachineOOO.Domain;
+
+namespace VendingMachineOOO.Application;
 
 public interface ICoffeeFactory
 {

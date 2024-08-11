@@ -1,4 +1,4 @@
-﻿namespace OptiUI_VendingMachine.Domain;
+﻿namespace VendingMachineOOO.Exceptions;
 
 public class InsufficientFundsException : Exception
 {

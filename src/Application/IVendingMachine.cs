@@ -1,4 +1,7 @@
-﻿namespace VendingMachineOOO.Domain
+﻿using System.Collections.ObjectModel;
+using VendingMachineOOO.Domain;
+
+namespace VendingMachineOOO.Application
 {
     public interface IVendingMachine
     {
@@ -6,7 +9,7 @@
 
         decimal TotalInsertedMoneyValue { get; }
 
-        List<ReadOnlyCoffeeOrder> CurrentOrders { get; }
+        ReadOnlyCollection<CoffeeOrder> CurrentOrders { get; }
         decimal TotalCost { get; }
 
         void SelectCoffee(CoffeeSize size, int creamCount = 0, int sugarCount = 0);

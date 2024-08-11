@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using VendingMachineOOO.Domain;
 
-namespace VendingMachineOOO.Domain;
+namespace VendingMachineOOO.Application;
 
 public class PriceCalculator : IPriceCalculator
 {
@@ -11,7 +12,7 @@ public class PriceCalculator : IPriceCalculator
         _prices = prices; // This should define prices
     }
 
-    public decimal CalculateTotal(ReadOnlyCoffeeOrder order)
+    public decimal CalculateTotal(CoffeeOrder order)
     {
         decimal total = order.Size switch
         {
@@ -26,6 +27,6 @@ public class PriceCalculator : IPriceCalculator
         return total;
     }
 
-    public decimal CalculateTotal(ReadOnlyCollection<ReadOnlyCoffeeOrder> orders) => orders.Sum(CalculateTotal);
+    public decimal CalculateTotal(ReadOnlyCollection<CoffeeOrder> orders) => orders.Sum(CalculateTotal);
 
 }

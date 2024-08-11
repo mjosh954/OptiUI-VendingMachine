@@ -1,5 +1,5 @@
 ﻿namespace VendingMachineOOO.Domain;
 
-public abstract record Addon(decimal Cost);
-public record Sugar() : Addon(0.25m);
-public record Cream() : Addon(0.50m);
+public abstract record Addon;
+public record Sugar : Addon;
+public record Cream : Addon;

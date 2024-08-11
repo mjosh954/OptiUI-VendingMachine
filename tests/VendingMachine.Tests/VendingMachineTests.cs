@@ -1,14 +1,30 @@
 using FluentAssertions;
+using System.Collections.ObjectModel;
+using VendingMachineOOO.Application;
 using VendingMachineOOO.Domain;
+using VendingMachineOOO.Infrastructure;
 
 namespace VendingMachineTests;
 
 public class VendingMachineTests
 {
+    private Clock _clock;
+    private readonly PriceCalculator _priceCalculator;
+    private readonly CoffeeFactory _coffeeFactory;
+
+    public VendingMachineTests()
+    {
+        _clock = new Clock();
+        _priceCalculator = new PriceCalculator(new Prices());
+        _coffeeFactory = new CoffeeFactory();
+    }
+
+    private Func<Bank> getBank => () => new Bank(Bank.CreateDefaultTill());
+
     [Fact]
     public void GetCurrentTotal_Returns_0_When_No_Order()
     {
-        IVendingMachine machine = new VendingMachine();
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
 
         decimal total = machine.TotalCost;
 
@@ -18,7 +34,7 @@ public class VendingMachineTests
     [Fact]
     public void Can_Create_Order_With_Two_Coffees_ShowTotal()
     {
-        IVendingMachine machine = new VendingMachine();
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
         // 2.00 + 0.50 + 0.50 = 3.00
         machine.SelectCoffee(CoffeeSize.Medium,
             creamCount: 2,
@@ -36,8 +52,8 @@ public class VendingMachineTests
     [Fact]
     public void Should_Return0RemainingBalance_WhenMoneyGreaterThanCostOfOrder()
     {
-        var medCoffeeResult = new MediumCoffee();
-        IVendingMachine machine = new VendingMachine();
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
+
         machine.InsertMoney(new Five());
         machine.SelectCoffee(CoffeeSize.Medium);
 
@@ -50,8 +66,8 @@ public class VendingMachineTests
     [Fact]
     public void Should_ReturnRemainingBalance1_75_WhenMoneyInsertedLessThanCost()
     {
-        var medCoffeeResult = new MediumCoffee();
-        IVendingMachine machine = new VendingMachine();
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
+
         machine.SelectCoffee(CoffeeSize.Medium);
 
         var remainingBalance = machine.RemainingBalance;
@@ -62,11 +78,12 @@ public class VendingMachineTests
     [Fact]
     public void InsertMoneyAddsMoneyToSpend()
     {
-        IVendingMachine vendingMachine = new VendingMachine();
-        vendingMachine.InsertMoney(new Twenty());
-        vendingMachine.InsertMoney(new Dollar());
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
 
-        var totalInserted = vendingMachine.TotalInsertedMoneyValue;
+        machine.InsertMoney(new Twenty());
+        machine.InsertMoney(new Dollar());
+
+        var totalInserted = machine.TotalInsertedMoneyValue;
 
         totalInserted.Should().Be(21.0m);
     }
@@ -74,9 +91,10 @@ public class VendingMachineTests
     [Fact]
     public void CurrentSpendableMoneyValue_0_When_NoMoneyInserted()
     {
-        IVendingMachine vendingMachine = new VendingMachine();
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
 
-        var totalInserted = vendingMachine.TotalInsertedMoneyValue;
+
+        var totalInserted = machine.TotalInsertedMoneyValue;
 
         totalInserted.Should().Be(0.0m);
     }
@@ -85,27 +103,45 @@ public class VendingMachineTests
     [Fact]
     public void CurrentOrder_Returns_ReadonlyCoffeeOrderWithSingleMediumCoffeeWithCreamAndSugarAddons()
     {
-        IVendingMachine vendingMachine = new VendingMachine();
-        vendingMachine.SelectCoffee(CoffeeSize.Medium, 1, 2);
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
+        machine.SelectCoffee(CoffeeSize.Medium, 1, 2);
 
-        var currentOrders = vendingMachine.CurrentOrders;
+        var currentOrders = machine.CurrentOrders;
 
         currentOrders.Should().HaveCount(1);
-        currentOrders.Should().BeOfType<List<ReadOnlyCoffeeOrder>>();
+        currentOrders.Should().BeOfType<ReadOnlyCollection<CoffeeOrder>>();
     }
 
     [Fact]
     public void CompleteOrder_Returns_CoffeeAndChange_When_MoneyGreaterThanTotal()
     {
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
 
-        IVendingMachine vendingMachine = new VendingMachine();
-        vendingMachine.SelectCoffee(CoffeeSize.Medium, 1, 2);
-        vendingMachine.InsertMoney(new Twenty());
+        machine.SelectCoffee(CoffeeSize.Medium, 1, 2);
+        machine.InsertMoney(new Twenty());
 
-        var (coffee, change) = vendingMachine.CompleteOrder();
+        var (coffee, change) = machine.CompleteOrder();
 
         coffee.Should().NotBeEmpty().And.ContainSingle();
         change.Should().NotBeEmpty();
 
+    }
+
+    [Fact]
+    public void Cancel_Returns_MoneyInserted_When_HasMoneyAndSetsTransactionToEmpty()
+    {
+        VendingMachine machine = new VendingMachine(getBank(), _priceCalculator, _coffeeFactory, _clock);
+
+        machine.SelectCoffee(CoffeeSize.Medium, 1, 2);
+        var twenty = new Twenty();
+        machine.InsertMoney(twenty);
+        List<Money> money = machine.Cancel();
+
+        machine.TotalCost.Should().Be(0.0m);
+        machine.TotalInsertedMoneyValue.Should().Be(0.0m);
+        money.Should().HaveCount(1);
+        money[0].Should().NotBeNull()
+            .And.BeOfType<Twenty>()
+            .Which.Serial.Should().Be(twenty.Serial);
     }
 }

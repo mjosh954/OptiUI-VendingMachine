@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using OptiUI_VendingMachine.Domain;
 using VendingMachineOOO.Domain;
+using VendingMachineOOO.Exceptions;
 
 namespace VendingMachineTests;
 
@@ -15,6 +15,16 @@ public class BankTests
 
         money.Should().HaveCount(5).And.AllBeOfType<Twenty>();
         bank.Total.Should().Be(3516m);
+    }
+
+    [Fact]
+    public void GetMoney_Returns_0_When_Pass0()
+    {
+        Bank bank = new LoadedBank();
+
+        var money = bank.GetMoney(0);
+
+        money.Should().BeEmpty();
     }
 
     [Fact]

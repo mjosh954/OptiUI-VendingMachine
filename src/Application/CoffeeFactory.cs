@@ -1,4 +1,6 @@
-﻿namespace VendingMachineOOO.Domain;
+﻿using VendingMachineOOO.Domain;
+
+namespace VendingMachineOOO.Application;
 
 public class CoffeeFactory : ICoffeeFactory
 {
@@ -11,7 +13,7 @@ public class CoffeeFactory : ICoffeeFactory
             CoffeeSize.Large => new LargeCoffee(),
             CoffeeSize.Medium => new MediumCoffee(),
             CoffeeSize.Small => new SmallCoffee(),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(order), "Size is not valid")
         };
         coffee.AddSugar(order.SugarCount);
         coffee.AddCream(order.CreamCount);

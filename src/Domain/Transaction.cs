@@ -1,15 +1,20 @@
 ﻿using System.Collections.ObjectModel;
+using VendingMachineOOO.Exceptions;
 
 namespace VendingMachineOOO.Domain;
 
 public class Transaction
 {
-    private List<CoffeeOrder> _coffeeOrders = [];
+    private readonly List<CoffeeOrder> _coffeeOrders = [];
 
     public ReadOnlyCollection<CoffeeOrder> CoffeeOrders => _coffeeOrders.AsReadOnly();
-    private bool _isComplete = false;
-    public bool IsComplete => _isComplete;
+
+    public bool IsComplete { get; private set; }
+
+    public DateTime? CompletedAt { get; private set; }
+
     public Guid Id { get; }
+
     public Transaction()
     {
         Id = Guid.NewGuid();
@@ -17,14 +22,18 @@ public class Transaction
 
     public void Add(CoffeeOrder item)
     {
-        if (_isComplete)
+        if (IsComplete)
         {
             throw new TransactionCompleteException();
         }
         _coffeeOrders.Add(item);
     }
 
-    public void Complete() => _isComplete = true;
+    public void Complete(DateTime completedAt)
+    {
+        CompletedAt = completedAt;
+        IsComplete = true;
+    }
 
     public bool HasCoffeeOrder => _coffeeOrders.Count > 0;
 

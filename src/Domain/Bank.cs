@@ -1,10 +1,10 @@
-﻿using OptiUI_VendingMachine.Domain;
+﻿using VendingMachineOOO.Exceptions;
 
 namespace VendingMachineOOO.Domain;
 
 public class Bank
 {
-    protected List<Money> _monies = new List<Money>();
+    protected List<Money> _monies = [];
     public decimal Total => _monies.Sum(s => s.Value);
 
     public Bank() : this([])
@@ -23,7 +23,7 @@ public class Bank
 
     public List<Money> GetMoney(decimal amount)
     {
-        if (amount < 0) throw new ArgumentOutOfRangeException("Can not get negative money from bank");
+        ArgumentOutOfRangeException.ThrowIfNegative(amount, nameof(amount));
 
         if (amount == 0) return Enumerable.Empty<Money>().ToList();
 
@@ -119,14 +119,16 @@ public class Bank
         => Enumerable.Range(0, 100).Select(s => new Dollar() as Money).ToList();
 
     public static List<Money> CreateDefaultTill()
-        => CreateTwentyStack()
-        .Concat(CreateTenStack())
-        .Concat(CreateFiveStack())
-        .Concat(CreateDollarStack())
-        .Concat(CreateQuarterRoll())
-        .Concat(CreateDimeRoll())
-        .Concat(CreateNickelRoll())
-        .ToList();
+        =>
+        [
+            .. CreateTwentyStack(),
+            .. CreateTenStack(),
+            .. CreateFiveStack(),
+            .. CreateDollarStack(),
+            .. CreateQuarterRoll(),
+            .. CreateDimeRoll(),
+            .. CreateNickelRoll(),
+        ];
 
 }
 

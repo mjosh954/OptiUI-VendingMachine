@@ -1,52 +1,57 @@
-﻿namespace VendingMachineOOO.Domain;
+﻿using System.Collections.ObjectModel;
+using VendingMachineOOO.Domain;
+
+namespace VendingMachineOOO.Application;
 
 public class VendingMachine : IVendingMachine
 {
     Transaction _currentTransaction = Transaction.EmptyTransaction;
-    private Bank _bank;
-    private List<Money> _moneyInserted = [];
-    private Ledger _ledger = new();
+
+    private readonly Bank _bank;
+    private readonly List<Money> _moneyInserted = [];
+    private readonly Ledger _ledger = new();
     private readonly IPriceCalculator _priceCalculator;
     private readonly ICoffeeFactory _coffeeFactory;
+    private readonly IClock _clock;
+
     public decimal TotalInsertedMoneyValue => _moneyInserted.Sum(m => m.Value);
 
-    public List<ReadOnlyCoffeeOrder> CurrentOrders => _currentTransaction.CoffeeOrders
-        .Select(s => s.AsReadOnly())
-        .ToList();
+    public ReadOnlyCollection<CoffeeOrder> CurrentOrders => _currentTransaction.CoffeeOrders
+        .ToList()
+        .AsReadOnly();
 
     public decimal RemainingBalance
     {
         get
         {
-            var total = _priceCalculator.CalculateTotal(CurrentOrders.AsReadOnly());
+            var total = _priceCalculator.CalculateTotal(CurrentOrders);
             return Math.Max(0, total - _moneyInserted.Sum(s => s.Value));
         }
     }
-    public decimal TotalCost => _priceCalculator.CalculateTotal(CurrentOrders.AsReadOnly());
+    public decimal TotalCost => _priceCalculator.CalculateTotal(CurrentOrders);
 
 
-    public VendingMachine(Bank bank, IPriceCalculator priceCalculator, ICoffeeFactory coffeeFactory)
+    public VendingMachine(Bank bank, IPriceCalculator priceCalculator, ICoffeeFactory coffeeFactory, IClock clock)
     {
 
         _bank = bank;
         _priceCalculator = priceCalculator;
         _coffeeFactory = coffeeFactory;
-    }
-
-    public VendingMachine() : this(new Bank(Bank.CreateDefaultTill()), new PriceCalculator(new Prices()), new CoffeeFactory())
-    {
+        _clock = clock;
     }
 
     public List<Money> Cancel()
     {
         _currentTransaction = Transaction.EmptyTransaction;
-        return []; // return any money inserted
+        var toRefund = new List<Money>(_moneyInserted);
+        _moneyInserted.Clear();
+        return toRefund; // return any money inserted
     }
 
     public (List<Coffee>, List<Money>) CompleteOrder()
     {
-        _currentTransaction.Complete();
-        var coffeeOrders = _currentTransaction.CoffeeOrders.Select(s => s.AsReadOnly()).ToList();
+        _currentTransaction.Complete(_clock.UtcNow);
+        var coffeeOrders = _currentTransaction.CoffeeOrders;
         List<Coffee> coffees = coffeeOrders.Select(_coffeeFactory.BuildCoffee).ToList();
 
         var totalCost = TotalCost;
@@ -54,7 +59,7 @@ public class VendingMachine : IVendingMachine
         var totalInsertedCash = TotalInsertedMoneyValue;
         var change = totalInsertedCash - totalCost;
 
-        _ledger.AddTransaction(_currentTransaction);
+        _ledger.RecordCompletedTransaction(_currentTransaction);
         _currentTransaction = Transaction.EmptyTransaction;
 
         return (coffees, _bank.GetMoney(change));
@@ -86,10 +91,12 @@ public class VendingMachine : IVendingMachine
             _currentTransaction = new Transaction();
         }
 
-        var coffee = new CoffeeOrder();
-        coffee.Size = size;
-        coffee.CreamCount = creamCount;
-        coffee.SugarCount = sugarCount;
+        CoffeeOrder coffee = new()
+        {
+            Size = size,
+            CreamCount = creamCount,
+            SugarCount = sugarCount
+        };
         _currentTransaction.Add(coffee);
     }
 }
