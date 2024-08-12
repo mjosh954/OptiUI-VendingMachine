@@ -1,4 +1,4 @@
-﻿namespace VendingMachineOOO.Domain;
+﻿namespace VendingMachineApp.Domain;
 
 public class CoffeeOrder
 {

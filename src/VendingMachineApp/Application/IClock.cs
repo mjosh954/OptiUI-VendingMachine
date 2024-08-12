@@ -1,4 +1,4 @@
-﻿namespace VendingMachineOOO.Application;
+﻿namespace VendingMachineApp.Application;
 
 public interface IClock
 {

@@ -1,4 +1,4 @@
-﻿namespace VendingMachineOOO.Domain;
+﻿namespace VendingMachineApp.Domain;
 
 public abstract record Money(decimal Value);
 

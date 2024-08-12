@@ -1,4 +1,4 @@
-﻿namespace VendingMachineOOO.Exceptions
+﻿namespace VendingMachineApp.Exceptions
 {
     [Serializable]
     internal class TransactionCompleteException : Exception

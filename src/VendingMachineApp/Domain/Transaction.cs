@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using VendingMachineOOO.Exceptions;
+using VendingMachineApp.Exceptions;
 
-namespace VendingMachineOOO.Domain;
+namespace VendingMachineApp.Domain;
 
 public class Transaction
 {

@@ -1,4 +1,4 @@
-﻿namespace VendingMachineOOO.Exceptions;
+﻿namespace VendingMachineApp.Exceptions;
 
 public class InsufficientFundsException : Exception
 {

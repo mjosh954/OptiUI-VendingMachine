@@ -1,9 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Microsoft.Extensions.DependencyInjection;
-using VendingMachineOOO.Application;
-using VendingMachineOOO.Domain;
-using VendingMachineOOO.Infrastructure;
+using VendingMachineApp.Application;
+using VendingMachineApp.Domain;
+using VendingMachineApp.Infrastructure;
 
 IServiceCollection services = new ServiceCollection();
 services.AddSingleton<IClock>(new Clock())

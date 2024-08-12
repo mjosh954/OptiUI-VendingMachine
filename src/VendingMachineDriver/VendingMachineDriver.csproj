@@ -10,7 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="VendingMachineApp\**" />
+    <EmbeddedResource Remove="VendingMachineApp\**" />
+    <None Remove="VendingMachineApp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VendingMachineApp\VendingMachineApp.csproj" />
   </ItemGroup>
 
 </Project>

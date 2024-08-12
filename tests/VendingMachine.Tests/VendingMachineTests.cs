@@ -1,8 +1,8 @@
 using FluentAssertions;
 using System.Collections.ObjectModel;
-using VendingMachineOOO.Application;
-using VendingMachineOOO.Domain;
-using VendingMachineOOO.Infrastructure;
+using VendingMachineApp.Application;
+using VendingMachineApp.Domain;
+using VendingMachineApp.Infrastructure;
 
 namespace VendingMachineTests;
 

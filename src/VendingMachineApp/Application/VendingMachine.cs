@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using VendingMachineOOO.Domain;
+using VendingMachineApp.Domain;
 
-namespace VendingMachineOOO.Application;
+namespace VendingMachineApp.Application;
 
 public class VendingMachine : IVendingMachine
 {

@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using VendingMachineOOO.Domain;
-using VendingMachineOOO.Exceptions;
+using VendingMachineApp.Domain;
+using VendingMachineApp.Exceptions;
 
 namespace VendingMachineTests;
 

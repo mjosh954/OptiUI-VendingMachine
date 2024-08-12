@@ -1,6 +1,6 @@
-﻿using VendingMachineOOO.Domain;
+﻿using VendingMachineApp.Domain;
 
-namespace VendingMachineOOO.Application;
+namespace VendingMachineApp.Application;
 
 public interface ICoffeeFactory
 {
