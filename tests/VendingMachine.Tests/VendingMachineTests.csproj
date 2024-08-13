@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\VendingMachineDriver.csproj" />
+    <ProjectReference Include="..\..\src\VendingMachineApp\VendingMachineApp.csproj" />
   </ItemGroup>
 	
 
